@@ -1,0 +1,108 @@
+---
+layout: post
+title: "React 소스 코드 읽기 - ReactElement"
+tags: [react, javascript, web]
+---
+
+import TOC from './_toc-react-internals.mdx';
+
+<TOC />
+
+React의 깊은 부분으로 들어가기 전에 (다소 지루할 수는 있지만) 먼저 표면에 드러난 컴포넌트 정의 API들을 살펴보려고 합니다. JavaScript와 React에 어느 정도 익숙한 분을 위한 글이고, *여기서 설명하는 내용은 모두 구현 디테일이므로 언제든 바뀔 수 있으니 주의하세요.* React 15.0.0-rc.1 버전을 기준으로 하고 있습니다.
+
+## React Core와 DOM
+
+React 0.14부터 React는 Core와 DOM, 두 개의 패키지로 분리되었습니다. 컴포넌트를 정의할 때 사용되는 API는 Core 패키지에 존재하고 플랫폼 독립적입니다. (여기서 플랫폼이란 브라우저(react-dom), 서버(react-dom/server), React Native 등을 의미합니다.) 따라서 지금 보려고 하는 것은 Core 패키지에 속하는 코드입니다.
+
+## JSX는 createElement 함수 호출로 변환됩니다
+
+React 코드에서는 JSX 문법으로 가상 DOM 구조를 나타냅니다. 그리고 JSX가 일반적인 JS 코드로 변환된다는 것은 이미 알고 계실겁니다. 예를 들어 `<Nav color="blue" />`는 `React.createElement(Nav, {color: 'blue'})`가 됩니다. 이때 `React.createElement` 함수는 **ReactElement** 타입의 객체를 리턴합니다. 그러면 [createElement](https://github.com/facebook/react/blob/v15.0.0-rc.1/src/isomorphic/classic/element/ReactElement.js#L117)의 소스 코드를 읽어봅시다.
+
+## `__DEV__`
+
+일단 어디에도 선언되어 있지 않은 `__DEV__`라는 변수가 사용되고 있습니다. 이 변수의 값은 빌드 과정에서 개발 모드인지 프로덕션 모드인지에 따라 각각 `true` 또는 `false`로 정해집니다. 대부분 개발자가 실수하지 않도록 각종 경고를 내주는 코드를 가두는 데에 사용되고 있습니다. 편리한 기능이지만 실제 서비스 시에는 불필요하고 성능이 저하될 수 있으므로 프로덕션 모드에서는 아예 없애버릴 수 있도록 하는 것입니다.
+
+## props 정규화
+
+`createElement`에서 가장 먼저 하는 작업은 React에서 [예약되어 있는 prop을 제거](https://github.com/facebook/react/blob/v15.0.0-rc.1/src/isomorphic/classic/element/ReactElement.js#L128-L147)하는 것입니다. (128-147행) `key`, `ref`를 별도의 변수에 저장하고 그들을 제외한 나머지는 `props` 객체에 복사됩니다. 컴포넌트 안에서 `this.props.key`처럼 해서 key 프로퍼티에 접근할 수 없는 이유입니다.
+
+다음으로는 [자식 엘리먼트들을 props.children에 넣습니다](https://github.com/facebook/react/blob/v15.0.0-rc.1/src/isomorphic/classic/element/ReactElement.js#L149-L160). (149-160행) `<Parent x="y">asdf{a}qwer</Parent>`는 `React.createElement(Parent, {x: 'y'}, 'asdf', a, 'qwer')`로 번역되므로 세번째 인자부터 마지막 인자까지가 children 배열이 됩니다.
+
+단, 자식이 한 개일 경우에는 배열로 만들지 않고 자식 엘리먼트가 바로 children이 됩니다. (불필요하게 배열이 할당되지 않도록 하기 위해서로 보입니다) 따라서 컴포넌트 안에서 `this.props.children`이 배열인지 아닌지 알기 어렵기 때문에 이를 일관성있게 다루기 위한 [React.Children](https://facebook.github.io/react/docs/top-level-api.html#react.children) 유틸리티 함수들이 제공되고 있습니다.
+
+props 정규화의 마지막 과정으로 [컴포넌트에 선언된 defaultProps가 복사](https://github.com/facebook/react/blob/v15.0.0-rc.1/src/isomorphic/classic/element/ReactElement.js#L162-L170)됩니다. (162-170행)
+
+## ReactElement 객체의 구조
+
+정규화 및 추출을 마친 값들은 `ReactElement` 함수에 넘겨지면서 객체로 만들어집니다. 그 코드는 다음과 같습니다.
+
+```js
+var element = {
+  // This tag allow us to uniquely identify this as a React Element
+  $$typeof: REACT_ELEMENT_TYPE,
+
+  // Built-in properties that belong on the element
+  type: type,
+  key: key,
+  ref: ref,
+  props: props,
+
+  // Record the component responsible for creating this element.
+  _owner: owner,
+};
+
+if (__DEV__)
+    ... // 생략
+
+return element;
+```
+
+`$$typeof` 프로퍼티는 이 객체가 ReactElement임을 나타내주는 표식입니다. 같은 파일 안에 선언되어 있는 `React.isValidElement` 함수는 이 값을 가지고 올바른 Element인지 검사하도록 되어있습니다. `REACT_ELEMENT_TYPE`의 값은 ES2015 Symbol을 사용할 수 있을 경우에는 Symbol이고 아니면 매직 넘버 `0xeac7`을 사용하도록 되어있습니다. (`eac7`은 r**eact**에서 따온 것일까요? 🙂)
+
+`type`, `key`, `ref`, `props`는 넘어온 그대로 들어가므로 크게 설명이 필요 없을 것 같습니다.
+
+### Owner
+
+`owner`는 아까 `createElement`의 마지막 부분에서 `ReactCurrentOwner.current`가 넘어오고 있습니다.  이것이 어떻게 작동하는지 보러 가기 전에 먼저 간단히 설명하면, 컴포넌트에서 `this.refs`를 만들기 위해 필요합니다.
+
+`ReactCurrentOwner` 모듈 자체는 `current` 프로퍼티만을 가지는 객체를 노출하고 있습니다. 일종의 싱글턴 객체로 사용됩니다. `current` 프로퍼티는 [컴포넌트의 render 메소드가 호출되기 직전에 현재 컴포넌트 객체로 설정](https://github.com/facebook/react/blob/10f9476f3adc6658067afbf2e27c4826649f8255/src/renderers/shared/reconciler/ReactCompositeComponent.js#L900)됩니다. 그리고 렌더링이 완료된 후 [`refs`에 붙게 됩니다](https://github.com/facebook/react/blob/3b96650e39ddda5ba49245713ef16dbc52d25e9e/src/renderers/shared/reconciler/ReactRef.js#L36-L44). (이 과정은 나중에 다시 자세히 볼 예정입니다.)
+
+따라서 render 메소드 밖에서 미리 만들어진 ReactElement에는 `_owner` 프로퍼티가 null로 되어 있습니다. 여기에 `ref`가 붙어있으면 렌더 시에 다음과 같이 오류가 나게 됩니다.
+
+```js
+var el = <div ref="x" />;
+
+class C extends React.Component {
+    render() { return el; }
+}
+
+ReactDOM.render(<C />, ...);
+// Error: Invariant Violation: addComponentAsRefTo(...): Only a ReactOwner can have refs. This usually means that you're trying to add a ref to a component that doesn't have an owner (that is, was not created inside of another component's `render` method). Try rendering this component inside of a new top-level component which will hold the ref.
+```
+
+전역 싱글턴을 쓰지 않고 render 메소드에서 리턴된 ReactElement를 순회하면서 owner를 붙일 수도 있었겠지만, 순회하는 비용이 들기 때문에 이렇게 구현한 것 같습니다. 그리고 ReactElement는 불변 객체기 때문에 복사하는 비용도 무시하기 힘들 것입니다.
+
+## createElement의 최적화
+
+위에서 살펴봤듯 `createElement`에서는 생각보다 여러가지 작업이 수행됩니다. 특히 props를 정규화하는 과정에서 몇 개의 객체가 새로 할당됩니다. render 메소드가 병목이 되는 경우는 거의 없지만 어떤 경우에는 여기서 발생하는 오버헤드를 줄이고 싶을 수 있습니다.
+
+이미 ReactElement 객체의 구조를 알고 있으니 createElement를 호출하지 않고 컴파일 타임에 미리 객체를 만들어버릴 수 있지 않을까요? 이런 아이디어를 구현해 놓은 것이 Babel의 [react-inline-elements](http://babeljs.io/docs/plugins/transform-react-inline-elements/) 플러그인입니다.
+
+JSX 태그를 createElement 호출로 변환하지 않고 바로 객체 리터럴로 변환해줍니다. 예를 들어 `<Baz foo="bar"></Baz>`는 다음과 같은 코드로 컴파일됩니다.
+
+```js
+({
+  $$typeof: babelHelpers.typeofReactElement,
+  type: Baz,
+  key: null,
+  ref: null,
+  props: babelHelpers.defaultProps(Baz.defaultProps, {
+    foo: "bar"
+  }),
+  _owner: null
+});
+```
+
+## 마치며
+
+다시 한번 이 모든 것은 *구현 디테일*임을 강조하고 싶습니다. React의 내부 구현은 그동안 자주 바뀌어왔고 앞으로도 언제든지 바뀔 수 있습니다.

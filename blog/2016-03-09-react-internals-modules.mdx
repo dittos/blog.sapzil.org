@@ -1,0 +1,27 @@
+---
+layout: post
+title: "React 소스 코드 읽기 - 모듈 시스템"
+tags: [react, javascript, web]
+---
+
+import TOC from './_toc-react-internals.mdx';
+
+<TOC />
+
+[React 소스 코드](https://github.com/facebook/react)는 조금 특이한 모듈 시스템을 사용해서 사전 지식이 없으면 구조를 파악하기가 힘듭니다.
+
+대부분의 소스 코드는 [src/](https://github.com/facebook/react/tree/v15.0.0-rc.1/src)에 들어있습니다. 파일들을 열어보면 CommonJS처럼 `require` 함수로 모듈을 불러오고 `module.exports`에 넣은 값이 외부에 공개되는 것을 알 수 있습니다. 그런데 `require`할 때의 모듈 경로가 디렉토리를 뺀 모듈명만으로 되어있습니다. 예를 들어 [src/React.js](https://github.com/facebook/react/blob/v15.0.0-rc.1/src/React.js)에서 `require('ReactDOM')`를 하는데 실제 이 모듈은 `src/renderers/dom/ReactDOM.js`에 있습니다.
+
+이는 React가 [페이스북 내부에서 사용하는 모듈 시스템](https://github.com/facebook/node-haste)으로 작성되어 있기 때문입니다. 각 파일에 보면 `@providesModule`이라는 주석이 달려있는데 여기에 있는 이름이 해당 파일의 모듈명이 됩니다. (대부분 파일명과 동일한 것으로 생각됩니다.) 또한 일부 모듈은 React가 아니라 페이스북의 JavaScript 프로젝트에서 공통으로 사용하는 [fbjs](https://github.com/facebook/fbjs)에 들어있으므로 React 저장소에서 찾을 수 없는 경우 살펴봐야 합니다.
+
+한가지 팁으로, GitHub의 파일 브라우저에서 <kbd>t</kbd> 키를 누르면 파일명으로 저장소 전체를 검색할 수 있어 실제 파일을 빠르게 찾을 수 있습니다. ([GitHub 단축키](https://help.github.com/articles/using-keyboard-shortcuts/#source-code-browsing))
+
+[npm의 react 패키지](https://www.npmjs.com/package/react)를 설치해보면 `lib/` 디렉토리 안에 모든 모듈이 플랫하게 들어있는 것을 확인할 수 있습니다. 그리고 npm 패키지의 디렉토리 구조는 [packages/ 디렉토리](https://github.com/facebook/react/tree/v15.0.0-rc.1/packages/react) 안에서 확인할 수 있습니다. 결론적으로 npm의 react 패키지의 진입점은 [packages/react/react.js](https://github.com/facebook/react/blob/v15.0.0-rc.1/packages/react/react.js)이고 이는 [src/React.js](https://github.com/facebook/react/blob/v15.0.0-rc.1/src/React.js)를 그대로 노출합니다.
+
+![npm의 react 패키지](/public/img/2016-03-npm-react.png)
+
+요약하면,
+
+* `require('blahblah')`는 react 저장소 어딘가에 있는 `blahblah.js`를 참조한다.
+* react 저장소에 없으면 fbjs 저장소에 있다.
+* npm 패키지의 진입점은 `packages/` 디렉토리 안에 있다.

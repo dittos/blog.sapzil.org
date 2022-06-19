@@ -1,0 +1,140 @@
+---
+layout: post
+title: "React 소스 코드 읽기 - 유틸리티들"
+tags: [react, javascript, web]
+---
+
+import TOC from './_toc-react-internals.mdx';
+
+<TOC />
+
+본격적으로 코드를 읽으려고 하니 복잡한 개념은 아닌데 익숙하지 않아 걸리는 부분들이 있어서 확실히 짚고 넘어가려고 합니다.
+
+
+## 클래스 선언
+
+React 생태계에서는 최신 자바스크립트 표준을 사용하는 것이 보통이지만 React 자체는 ES5로 작성되어 있습니다. 그래서 ES2015 클래스가 아닌 프로토타입 상속을 주로 볼 수 있습니다. 대부분 다음과 같은 패턴으로 클래스를 정의합니다.
+
+```js
+function SomeClass() {
+  // ...
+}
+
+var Mixin = {
+  // SomeClass의 메소드들
+};
+
+assign(
+  SomeClass.prototype,
+  SomeMixin, // SomeMixin에 정의된 메소드를 믹스인한다.
+  Mixin
+);
+```
+
+여기서 `assign` 함수는 ES2015의 [Object.assign](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)입니다.
+
+
+## 의존성 주입
+
+React의 일부 모듈은 여러 플랫폼을 지원하기 위해 실제 구현 클래스를 주입(inject)할 수 있게 설계되어 있습니다. 그런 모듈은 열어봐도 실제 구현을 찾을 수 없어서 당황할 수 있는데요. [ReactDefaultInjection 모듈](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/renderers/dom/shared/ReactDefaultInjection.js)에서 어떤 구현 클래스가 주입되는지 확인할 수 있습니다. 물론 React DOM 환경에서 저렇게 주입되는 것이고, [React Native는 다른 클래스를 주입](https://github.com/facebook/react-native/blob/0.22-stable/Libraries/ReactNative/ReactNativeDefaultInjection.js)합니다.
+
+
+## 트랜잭션
+
+React의 트랜잭션은 어떤 함수를 실행하기 전과 후에 특정 동작을 수행할 수 있도록 감싸줍니다. 함수를 감싸는 트랜잭션 래퍼(wrapper)는 함수 수행 중에 예외가 나도 항상 호출되도록 되어 있어서 외부 자원의 상태를 안전하게 관리할 수 있습니다.
+
+트랜잭션 래퍼는 `initialize`와 `close` 메소드를 구현하며 각각 함수 실행 전과 후에 호출됩니다. 트랜잭션은 [Transaction.Mixin](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/shared/utils/Transaction.js#L234)을 믹스인하고 트랜잭션 래퍼의 배열을 리턴하는 `getTransactionWrappers` 메소드를 구현해야 합니다. 트랜잭션의 `perform` 메소드를 호출해서 특정 함수를 트랜잭션 안에서 실행할 수 있습니다.
+
+다음의 예제 코드를 살펴봅시다.
+
+```js
+// Transaction Wrappers
+var A = {
+  initialize: function() {
+    console.log('A.initialize')
+  },
+  close: function() {
+    console.log('A.close')
+  }
+};
+var B = {
+  initialize: function() {
+    console.log('B.initialize')
+  },
+  close: function() {
+    console.log('B.close')
+  }
+};
+
+// Transaction
+function Tx() {
+  this.reinitializeTransaction();
+}
+assign(Tx.prototype, Transaction.Mixin, {
+  getTransactionWrappers: function() {
+    return [A, B];
+  }
+});
+
+function f(a, b) {
+  console.log('f(' + a + ', ' + b + ')')
+  throw new Error('error!')
+  console.log('f end')
+}
+
+var tx = new Tx();
+tx.perform(
+  // Tx 안에서 실행할 함수
+  f,
+  // 함수의 this context를 지정
+  null,
+  // 함수의 인자를 지정
+  1, 2
+);
+```
+
+실행하면 다음과 같은 로그가 출력됩니다.
+
+```
+A.initialize
+B.initialize
+f(1, 2)
+A.close
+B.close
+Error: error!
+    ... stack trace ...
+```
+
+
+## 풀링
+
+자주 할당되는 객체를 사용이 끝난 뒤 해제하지 않고 다시 사용하는 것을 [풀링](https://en.wikipedia.org/wiki/Pool_%28computer_science%29)이라고 합니다. React에서는 [PooledClass 모듈](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/shared/utils/PooledClass.js)이 객체 풀링에 사용됩니다.
+
+클래스에 풀링을 추가하려면, 객체가 풀에 반환될 때 객체의 상태를 초기화하는 `destructor` 메소드를 구현하고 `PooledClass.addPoolingTo`를 호출합니다. 그리고 풀링이 추가된 클래스는 `getPooled` 함수로 풀에서 인스턴스를 가져올 수 있습니다. 풀에서 가져온 인스턴스는 사용이 끝난 뒤에 반드시 `release` 함수로 반환해줘야 합니다.
+
+```js
+function SomeClass() {
+  console.log('construct')
+}
+assign(SomeClass.prototype, {
+  destructor: function() {
+    // 객체가 해제될 때 초기화
+    console.log('release')
+  }
+});
+PooledClass.addPoolingTo(SomeClass);
+
+var inst = SomeClass.getPooled(null); // `construct` 출력
+SomeClass.release(inst); // `release` 출력
+var inst2 = SomeClass.getPooled(null); // 아무것도 출력되지 않음!
+console.log(inst === inst2); // true
+```
+
+
+## 배치
+
+같은 컴포넌트가 연쇄적으로 여러번 업데이트될 때, 마지막 한번만 실제로 렌더링을 할 수 있다면 효율적일 것입니다. React는 기본적으로 업데이트를 배치로 묶어서 처리합니다.
+
+렌더링 작업은 기본적으로 [ReactUpdates.batchedUpdates](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/renderers/shared/reconciler/ReactUpdates.js#L110-L113) 함수를 통해 실행됩니다. `setState` 같은 메소드는 바로 렌더링을 발생시키지 않고 업데이트 큐에만 추가합니다. ([ReactUpdates.enqueueUpdate](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/renderers/shared/reconciler/ReactUpdates.js#L214-L233)) `setState`를 호출하더라도 변경된 상태를 바로 `this.state`로 읽을 수 없는 이유입니다. 배치가 끝나면, 쌓여있던 업데이트가 한번에 처리됩니다. ([ReactUpdates.flushBatchedUpdates](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/renderers/shared/reconciler/ReactUpdates.js#L187-L212))
+
+배치 전략은 주입되는 의존성이며 기본 배치 전략은 [ReactDefaultBatchingStrategy](https://github.com/facebook/react/blob/v15.0.0-rc.2/src/renderers/shared/reconciler/ReactDefaultBatchingStrategy.js)에 구현되어 있습니다.
