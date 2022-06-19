@@ -10,7 +10,7 @@ TL;DR: Diff Monster는 GitHub 풀 리퀘스트 리뷰를 조금 편하게 해주
 
 아래 글을 읽기 싫다면 [지금 바로 접속](https://diff.sapzil.org/)해보세요.
 
-<figure style={{marginLeft: '-1.5rem', marginRight: '-1.5rem'}}>
+<figure>
 <a href="/public/img/2017-07-diffmonster.png"><img src="/public/img/2017-07-diffmonster.png" alt="스크린샷" /></a>
 </figure>
 
