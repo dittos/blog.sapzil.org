@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[7265],{998:function(a){a.exports=JSON.parse('{"label":"jquery","permalink":"/tags/jquery","allTagsPath":"/tags","count":1}')}}]);

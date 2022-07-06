@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[5451],{7228:function(a){a.exports=JSON.parse('{"label":"architecture","permalink":"/tags/architecture","allTagsPath":"/tags","count":1}')}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[4185],{910:function(a){a.exports=JSON.parse('{"label":"python","permalink":"/tags/python","allTagsPath":"/tags","count":2}')}}]);
