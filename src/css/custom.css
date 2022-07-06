@@ -4,8 +4,6 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css?family=Noto+Sans+KR:300,400,700|Inter:400,700&display=swap");
-
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #0000ff;
