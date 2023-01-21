@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[6673],{5593:function(e){e.exports=JSON.parse('{"label":"kubernetes","permalink":"/tags/kubernetes","allTagsPath":"/tags","count":1}')}}]);
