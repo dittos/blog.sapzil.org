@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[9432],{1111:function(e){e.exports=JSON.parse('{"label":"dependency-injection","permalink":"/tags/dependency-injection","allTagsPath":"/tags","count":1}')}}]);

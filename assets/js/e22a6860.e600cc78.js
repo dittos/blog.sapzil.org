@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[3481],{5717:function(a){a.exports=JSON.parse('{"label":"nix","permalink":"/tags/nix","allTagsPath":"/tags","count":1}')}}]);

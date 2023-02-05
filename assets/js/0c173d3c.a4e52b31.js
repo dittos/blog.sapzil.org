@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[7466],{6186:a=>{a.exports=JSON.parse('{"label":"announcement","permalink":"/tags/announcement","allTagsPath":"/tags","count":1}')}}]);

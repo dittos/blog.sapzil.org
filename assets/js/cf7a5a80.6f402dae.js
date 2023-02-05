@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[3864],{8398:s=>{s.exports=JSON.parse('{"label":"jersey","permalink":"/tags/jersey","allTagsPath":"/tags","count":1}')}}]);
