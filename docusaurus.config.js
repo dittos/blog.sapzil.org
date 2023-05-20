@@ -74,14 +74,6 @@ const config = {
     }),
   
   trailingSlash: true,
-
-  stylesheets: [
-    {
-      href: 'https://fonts.googleapis.com/css?family=Noto+Sans+KR:300,400,700|Inter:400,700&display=swap',
-      media: 'print',
-      onload: "this.media='all'",
-    },
-  ],
 };
 
 module.exports = config;
