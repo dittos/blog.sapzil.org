@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[9644],{6508:s=>{s.exports=JSON.parse('{"tag":{"label":"ssr","permalink":"/tags/ssr","allTagsPath":"/tags","count":1,"unlisted":false},"listMetadata":{"permalink":"/tags/ssr","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[6720],{4893:a=>{a.exports=JSON.parse('{"tag":{"label":"database","permalink":"/tags/database","allTagsPath":"/tags","count":3,"unlisted":false},"listMetadata":{"permalink":"/tags/database","page":1,"postsPerPage":10,"totalPages":1,"totalCount":3,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

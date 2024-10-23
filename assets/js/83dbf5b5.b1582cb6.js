@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[7498],{1660:a=>{a.exports=JSON.parse('{"tag":{"label":"sysadmin","permalink":"/tags/sysadmin","allTagsPath":"/tags","count":4,"unlisted":false},"listMetadata":{"permalink":"/tags/sysadmin","page":1,"postsPerPage":10,"totalPages":1,"totalCount":4,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

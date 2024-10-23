@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[7527],{1519:a=>{a.exports=JSON.parse('{"tag":{"label":"kotlin","permalink":"/tags/kotlin","allTagsPath":"/tags","count":3,"unlisted":false},"listMetadata":{"permalink":"/tags/kotlin","page":1,"postsPerPage":10,"totalPages":1,"totalCount":3,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

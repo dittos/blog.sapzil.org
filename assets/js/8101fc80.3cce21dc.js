@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[8162],{874:a=>{a.exports=JSON.parse('{"tag":{"label":"java","permalink":"/tags/java","allTagsPath":"/tags","count":3,"unlisted":false},"listMetadata":{"permalink":"/tags/java","page":1,"postsPerPage":10,"totalPages":1,"totalCount":3,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

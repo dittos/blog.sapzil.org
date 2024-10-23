@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[2578],{7526:s=>{s.exports=JSON.parse('{"label":"microservice","permalink":"/tags/microservice","allTagsPath":"/tags","count":1}')}}]);

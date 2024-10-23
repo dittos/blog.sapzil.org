@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[3373],{1897:a=>{a.exports=JSON.parse('{"tag":{"label":"upstart","permalink":"/tags/upstart","allTagsPath":"/tags","count":1,"unlisted":false},"listMetadata":{"permalink":"/tags/upstart","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

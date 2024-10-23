@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[7368],{7942:a=>{a.exports=JSON.parse('{"tag":{"label":"spring","permalink":"/tags/spring","allTagsPath":"/tags","count":3,"unlisted":false},"listMetadata":{"permalink":"/tags/spring","page":1,"postsPerPage":10,"totalPages":1,"totalCount":3,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

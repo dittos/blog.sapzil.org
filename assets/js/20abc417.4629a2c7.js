@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[9669],{228:a=>{a.exports=JSON.parse('{"tag":{"label":"linux","permalink":"/tags/linux","allTagsPath":"/tags","count":2,"unlisted":false},"listMetadata":{"permalink":"/tags/linux","page":1,"postsPerPage":10,"totalPages":1,"totalCount":2,"blogDescription":"Blog","blogTitle":"Blog"}}')}}]);

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunksapzil_org=self.webpackChunksapzil_org||[]).push([[1987],{5517:a=>{a.exports=JSON.parse('{"label":"translation","permalink":"/tags/translation","allTagsPath":"/tags","count":1}')}}]);
